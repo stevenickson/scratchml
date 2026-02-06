@@ -1,0 +1,9 @@
+[project]
+name = "mnist-scratch"
+version = "0.1.0"
+description = "Demonstration of machine learning on MNIST"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "numpy>=2.0.2"
+]
