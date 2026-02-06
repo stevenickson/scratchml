@@ -1,4 +1,4 @@
-import models.differentiable_model as dm
+import models.differentiable as dm
 import numpy as np
 
 class MiniModel(dm.DifferentiableModel):
