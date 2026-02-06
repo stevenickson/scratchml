@@ -1,7 +1,7 @@
-import model
+import models.differentiable_model as dm
 import numpy as np
 
-class MiniModel(model.DifferentiableModel):
+class MiniModel(dm.DifferentiableModel):
     def __init__(self):
         self.randomizer = np.random.default_rng(seed=32142456)
         #self.W_1 = np.array([[1, 0, 0], randomizer.uniform(low=0.0, high=1, size=(3))])

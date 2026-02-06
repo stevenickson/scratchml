@@ -1,6 +1,6 @@
 import numpy as np
 
-import mini
+import models.mini
 
 # Loads the MNIST datasets from the CSV files
 # mnist_test.csv and mnist_train.csv directly into memory
@@ -16,7 +16,7 @@ def load_datasets():
 
 def main():
     training_set, test_set = load_datasets()
-    m1 = mini.MiniModel()
+    m1 = models.mini.MiniModel()
     print(m1.inference([[1], [-2], [0.5]]))
 
 
