@@ -17,8 +17,29 @@ def load_datasets():
 def main():
     training_set, test_set = load_datasets()
     m1 = models.mini.MiniModel()
-    print(m1.inference([[1], [-2], [0.5]]))
 
+    def batch_loss():
+        avg = m1.loss([[1], [-2], [0.5]])
+        for i in range(-50, 50, 1):
+            for j in range(-50, 50, 1):
+                avg += m1.loss([[1], [i / 10], [j / 10]])
+        avg /= 10000
+        return avg
+
+    def batch_loss_gradient():
+        avg = np.zeros((5))
+        for i in range(-10, 10, 1):
+            for j in range(-10, 10, 1):
+                avg += m1.loss_gradient([[1], [i], [j]])
+        avg /= 100
+        return avg
+
+    print(m1.inference([[1], [-5.5], [4]]))
+    delta = 0.05
+    for i in range(1, 10):
+        m1.set_parameters(m1.get_parameters() - delta * batch_loss_gradient())
+        delta = delta * 0.8
+    print(m1.inference([[1], [-5.5], [4]]))
 
 if __name__ == "__main__":
     main()
