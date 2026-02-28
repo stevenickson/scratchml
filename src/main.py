@@ -1,6 +1,8 @@
 import numpy as np
 
 import models.mini
+import models.hand
+import models.training
 
 # Loads the MNIST datasets from the CSV files
 # mnist_test.csv and mnist_train.csv directly into memory
@@ -41,5 +43,13 @@ def main():
         delta = delta * 0.8
     print(m1.inference([[1], [-5.5], [4]]))
 
+def scratch():
+    m = models.hand.HandModel()
+    print(m.inference(np.array([[0.6]])))
+    dataset = [(np.array([[a]]), np.array([[0.5 * a], [0.5 * a]])) for a in np.arange(0.0, 1.0, 0.1)]
+    for i in range(1, 10000):
+        m.fiterate(dataset, 0.01)
+    print(m.inference(np.array([[0.25]])))
+
 if __name__ == "__main__":
-    main()
+    scratch()

@@ -26,41 +26,68 @@ class HandModel(dm.DifferentiableModel):
         a = self.inference(x)
         return 0.5 * np.transpose(a - y).dot(a - y)
 
-    def loss_gradient(self, x):
-        z1 = self.W_1.dot(x) + self.b_1
-        a1 = np.tanh(z1)
-        z2 = self.W_2.dot(a1) + self.b_2
-        a2 = np.tanh(z2)
-        z3 = self.W_3.dot(a2) + self.b_3
-        a3 = np.tanh(z3)
+    def loss_gradient(self, xs):
+        result = (0, 0, 0, 0, 0, 0)
+        nx = 0
+        for x in xs:
+            z1 = self.W_1.dot(x) + self.b_1
+            a1 = np.tanh(z1)
+            z2 = self.W_2.dot(a1) + self.b_2
+            a2 = np.tanh(z2)
+            z3 = self.W_3.dot(a2) + self.b_3
+            a3 = np.tanh(z3)
 
-        delta3 = ((a3 - np.array([[0.5 * x[0][0]], [0.5 * x[0][0]]])) * (1 - np.tanh(z3) * np.tanh(z3))).transpose()
-        delta2 = delta3 @ self.W_3 * (1 - np.tanh(z2) * np.tanh(z2)).transpose()
-        delta1 = delta2.dot(self.W_2) * (1 - np.tanh(z1) * np.tanh(z1)).transpose()
+            delta3 = ((a3 - np.array([[0.5 * x[0][0]], [0.5 * x[0][0]]])) * (1 - np.tanh(z3) * np.tanh(z3))).transpose()
+            delta2 = delta3 @ self.W_3 * (1 - np.tanh(z2) * np.tanh(z2)).transpose()
+            delta1 = delta2.dot(self.W_2) * (1 - np.tanh(z1) * np.tanh(z1)).transpose()
 
-        lw1 = delta1.transpose() @ x
-        lw2 = delta2.transpose() @ a1.transpose()
-        lw3 = delta3.transpose() @ a2.transpose()
-        lb1 = delta1
-        lb2 = delta2
-        lb3 = delta3
+            lw1 = delta1.transpose() @ x
+            lw2 = delta2.transpose() @ a1.transpose()
+            lw3 = delta3.transpose() @ a2.transpose()
+            lb1 = delta1
+            lb2 = delta2
+            lb3 = delta3
+            
+            result = tuple((r + y) for (r, y) in zip(result, (lw1, lb1, lw2, lb2, lw3, lb3)))
+            nx += 1
         
-        return [lw1, lb1, lw2, lb2, lw3, lb3]
+        result = tuple(r / nx for r in result)
+        return result
+        
 
-    def get_parameters():
-        return [
-            self.W_1,
-            self.b_1,
-            self.W_2,
-            self.b_2,
-            self.W_3,
-            self.b_3
-        ]
+    def fiterate(self, datapoints, rate):
+        n = 0
+        lw1, lw2, lw3, lb1, lb2, lb3 = 0, 0, 0, 0, 0, 0
+        for (x, y) in datapoints:
+            z1 = self.W_1.dot(x) + self.b_1
+            a1 = np.tanh(z1)
+            z2 = self.W_2.dot(a1) + self.b_2
+            a2 = np.tanh(z2)
+            z3 = self.W_3.dot(a2) + self.b_3
+            a3 = np.tanh(z3)
 
-    def set_parameters(parameters):
-        self.W_1 = parameters[0]
-        self.b_1 = parameters[1]
-        self.W_2 = parameters[2]
-        self.b_2 = parameters[3]
-        self.W_3 = parameters[4]
-        self.b_3 = parameters[5]
+            delta3 = ((a3 - y) * (1 - np.tanh(z3) * np.tanh(z3))).transpose()
+            delta2 = delta3 @ self.W_3 * (1 - np.tanh(z2) * np.tanh(z2)).transpose()
+            delta1 = delta2.dot(self.W_2) * (1 - np.tanh(z1) * np.tanh(z1)).transpose()
+
+            lw1 += delta1.transpose() @ x
+            lw2 += delta2.transpose() @ a1.transpose()
+            lw3 += delta3.transpose() @ a2.transpose()
+            lb1 += delta1
+            lb2 += delta2
+            lb3 += delta3
+
+            n += 1
+        lw1 /= n
+        lw2 /= n
+        lw3 /= n
+        lb1 /= n
+        lb2 /= n
+        lb3 /= n
+
+        self.W_1 -= lw1 * rate
+        self.b_1 -= (lb1 * rate).transpose()
+        self.W_2 -= lw2 * rate
+        self.b_2 -= (lb2 * rate).transpose()
+        self.W_3 -= lw3 * rate
+        self.b_3 -= (lb3 * rate).transpose()
