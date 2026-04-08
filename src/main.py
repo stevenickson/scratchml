@@ -1,8 +1,7 @@
 import numpy as np
 
-import models.mini
 import models.hand
-import models.training
+import models.mnistmodel
 
 # Loads the MNIST datasets from the CSV files
 # mnist_test.csv and mnist_train.csv directly into memory

@@ -1,7 +1,6 @@
-import models.differentiable as dm
 import numpy as np
 
-class HandModel(dm.DifferentiableModel):
+class HandModel():
     def __init__(self):
         self.W_1 = np.array([[0.2], [-0.1], [0.6]])
         self.b_1 = np.array([[0], [0.1], [0]])
