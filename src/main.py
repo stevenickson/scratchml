@@ -15,40 +15,68 @@ def load_datasets():
     return (training, test)
 
 
-def main():
-    training_set, test_set = load_datasets()
-    m1 = models.mini.MiniModel()
+# The model we created outputs a column vector of probabilities, representing the
+# degree of confidence the model has in each possible answer. However,
+# our dataset gives its training labels as floats - each image array
+# is associated with the number it represents. To use this with our model,
+# we need to convert each digit (given as a float) into the format that
+# we expect our model to output. Thus, the given the float 5.0, we should output
+# [[0], [0], [0], [0], [0], [1], [0], [0], [0], [0]]. This function makes that
+# conversion.
+def float_digit_to_probability_vector(y):
+    a = np.repeat(0.0, 10)[..., None]
+    
+    if y not in range(0, 10):
+        return a
+    i = int(y)
+    a[i][0] = 1.0
+    return a
 
-    def batch_loss():
-        avg = m1.loss([[1], [-2], [0.5]])
-        for i in range(-50, 50, 1):
-            for j in range(-50, 50, 1):
-                avg += m1.loss([[1], [i / 10], [j / 10]])
-        avg /= 10000
-        return avg
 
-    def batch_loss_gradient():
-        avg = np.zeros((5))
-        for i in range(-10, 10, 1):
-            for j in range(-10, 10, 1):
-                avg += m1.loss_gradient([[1], [i], [j]])
-        avg /= 100
-        return avg
+def make_pairs():
+    None
 
-    print(m1.inference([[1], [-5.5], [4]]))
-    delta = 0.05
-    for i in range(1, 10):
-        m1.set_parameters(m1.get_parameters() - delta * batch_loss_gradient())
-        delta = delta * 0.8
-    print(m1.inference([[1], [-5.5], [4]]))
 
-def scratch():
+def most_confident(probability_vector):
+    m = max(probability_vector)
+    return probability_vector.tolist().index(m)
+    
+    
+def mnist_model_demonstration():
+    training_data, test_data = load_datasets()
+    
+    training_pairs = list(map(lambda a: (np.array(a[1:])[..., None] / 255, float_digit_to_probability_vector(a[0])), training_data))
+    test_pairs = list(map(lambda a: (np.array(a[1:])[..., None] / 255, float_digit_to_probability_vector(a[0])), test_data))
+    
+    m1 = models.mnistmodel.MnistModel()
+    m1.fit(training_pairs, batch_size=20)
+    m1.fit(training_pairs, batch_size=15)
+    m1.fit(training_pairs, batch_size=16)
+    
+    print(most_confident(m1.inference(test_pairs[0][0])), most_confident(test_pairs[0][1]))
+    print(most_confident(m1.inference(test_pairs[1][0])), most_confident(test_pairs[1][1]))
+    print(most_confident(m1.inference(test_pairs[2][0])), most_confident(test_pairs[2][1]))
+    print(most_confident(m1.inference(test_pairs[3][0])), most_confident(test_pairs[3][1]))
+    print(most_confident(m1.inference(test_pairs[4][0])), most_confident(test_pairs[4][1]))
+    print(most_confident(m1.inference(test_pairs[5][0])), most_confident(test_pairs[5][1]))
+    print(most_confident(m1.inference(test_pairs[6][0])), most_confident(test_pairs[6][1]))
+
+
+def hand_model_demonstration():
+    # Train the hand model to divide its input in half. Input is a 1x1 matrix [[x]], output is
+    # a vector which should have the form <x, 0.5x>
     m = models.hand.HandModel()
-    print(m.inference(np.array([[0.6]])))
-    dataset = [(np.array([[a]]), np.array([[0.5 * a], [0.5 * a]])) for a in np.arange(0.0, 1.0, 0.1)]
-    for i in range(1, 10000):
+    print(m.inference(np.array([[0.3]])))
+    dataset = [(np.array([[a]]), np.array([[a], [0.5 * a]])) for a in np.arange(0.0, 1.0, 0.1)]
+    for i in range(1, 50000):
         m.fiterate(dataset, 0.01)
-    print(m.inference(np.array([[0.25]])))
+    print(m.inference(np.array([[0.75]])))
 
+
+def main():
+    # hand_model_demonstration()
+    mnist_model_demonstration()
+    
+    
 if __name__ == "__main__":
-    scratch()
+    main()
