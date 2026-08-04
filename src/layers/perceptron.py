@@ -32,3 +32,34 @@ class Perceptron():
 
     def jacobian(self, x):
         return self.sequence.jacobian(x)
+
+
+class MultilayerPerceptron():
+    def __init__(
+        self,
+        layer_dimensions,
+        initializer,
+        activation_function
+    ):
+        # layer_dimensions is a list of the form [1, 3, 5, 3].
+        # Each number is the dimension of a feature vector - this
+        # class puts perceptrons between them.
+        l = []
+        for i in range(0, len(layer_dimensions) - 1):
+            l.append(
+                Perceptron(layer_dimensions[i],
+                    layer_dimensions[i + 1],
+                    initializer,
+                    activation_function
+                )
+            )
+
+        self.seq = sequential.Sequential(*l)
+
+
+    def __call__(self, x):
+        return self.seq(x)
+
+
+    def jacobian(self, x):
+        return self.seq.jacobian(x)
