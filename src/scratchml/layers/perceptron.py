@@ -4,10 +4,9 @@ This module implements the Perceptron, both single and multi-layer.
 """
 
 import numpy as np
-import linear
-import activation
-import sequential
-import initializers
+import scratchml.layers.activation as activation
+import scratchml.layers.linear as linear
+import scratchml.layers.sequential as sequential
 
 class Perceptron():
     def __init__(

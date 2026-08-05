@@ -1,7 +1,7 @@
 import numpy as np
 
-import models.hand
-import models.mnistmodel
+import scratchml.models.hand
+import scratchml.models.mnistmodel
 
 # Loads the MNIST datasets from the CSV files
 # mnist_test.csv and mnist_train.csv directly into memory
@@ -48,7 +48,7 @@ def mnist_model_demonstration():
     training_pairs = list(map(lambda a: (np.array(a[1:])[..., None] / 255, float_digit_to_probability_vector(a[0])), training_data))
     test_pairs = list(map(lambda a: (np.array(a[1:])[..., None] / 255, float_digit_to_probability_vector(a[0])), test_data))
     
-    m1 = models.mnistmodel.MnistModel()
+    m1 = scratchml.models.mnistmodel.MnistModel()
     m1.fit(training_pairs, batch_size=20)
     m1.fit(training_pairs, batch_size=15)
     m1.fit(training_pairs, batch_size=16)
@@ -65,7 +65,7 @@ def mnist_model_demonstration():
 def hand_model_demonstration():
     # Train the hand model to divide its input in half. Input is a 1x1 matrix [[x]], output is
     # a vector which should have the form <x, 0.5x>
-    m = models.hand.HandModel()
+    m = scratchml.models.hand.HandModel()
     print(m.inference(np.array([[0.3]])))
     dataset = [(np.array([[a]]), np.array([[a], [0.5 * a]])) for a in np.arange(0.0, 1.0, 0.1)]
     for i in range(1, 50000):
