@@ -1,5 +1,5 @@
 [project]
-name = "mnist-scratch"
+name = "scratchml"
 version = "0.1.0"
 description = "Demonstration of machine learning on MNIST"
 readme = "README.md"
@@ -8,3 +8,7 @@ dependencies = [
     "numpy>=2.0.2",
     "pillow>=12.1.0"
 ]
+
+[build-system]
+requires = ["uv_build>=0.12.2,<0.13"]
+build-backend = "uv_build"
