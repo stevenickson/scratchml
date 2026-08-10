@@ -11,6 +11,7 @@ wheels/
 
 # Editor environment files
 .theia
+.zed
 
 # macOS
 .DS_Store
