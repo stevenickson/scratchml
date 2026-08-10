@@ -3,21 +3,20 @@
 This module implements the Perceptron, both single and multi-layer.
 """
 
-import numpy as np
-import scratchml.layers.activation as activation
-import scratchml.layers.linear as linear
-import scratchml.layers.sequential as sequential
 
-class Perceptron():
+from scratchml.layers import linear, sequential
+
+
+class Perceptron:
     def __init__(
         self,
         input_features,
         output_features,
         initializer,
-        activation_function=activation.ReLU()
+        activation_function
     ):
         # A perceptron is a sequence of a matrix multiplication,
-        # a vector addition, and an activation  
+        # a vector addition, and an activation
         self.sequence = sequential.Sequential(
             linear.LinearTransformation(input_features, output_features, initializer),
             linear.Bias(output_features, initializer),
@@ -33,7 +32,7 @@ class Perceptron():
         return self.sequence.jacobian(x)
 
 
-class MultilayerPerceptron():
+class MultilayerPerceptron:
     def __init__(
         self,
         layer_dimensions,
@@ -44,7 +43,7 @@ class MultilayerPerceptron():
         # Each number is the dimension of a feature vector - this
         # class puts perceptrons between them.
         l = []
-        for i in range(0, len(layer_dimensions) - 1):
+        for i in range(len(layer_dimensions) - 1):
             l.append(
                 Perceptron(layer_dimensions[i],
                     layer_dimensions[i + 1],

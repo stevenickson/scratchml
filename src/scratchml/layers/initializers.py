@@ -10,7 +10,9 @@ of each class.
 """
 
 import abc
+
 import numpy as np
+
 
 class MatrixInitializer(abc.ABC):
     """
@@ -19,10 +21,10 @@ class MatrixInitializer(abc.ABC):
     and output dimension as arguements. The output of __call__ is
     expected to be a (dim_in, dim_out) numpy array.
     """
-    
-    
+
+
     @abc.abstractmethod
-    def __call__(self, dim_in, dim_out):
+    def __call__(self, dim_in, dim_out) -> np.ndarray:
         """Create a random matrix.
 
         Parameters
@@ -37,13 +39,13 @@ class MatrixInitializer(abc.ABC):
         numpy.ndarray
             A random numpy array of shape (dim_in, dim_out)
         """
-        pass
+        ...
 
 
 class Trivial(MatrixInitializer):
     """The trivial initializer creates a NumPy array filled with zeros."""
-    
-    
+
+
     def __init__(self):
         pass
 
@@ -63,7 +65,7 @@ class Trivial(MatrixInitializer):
         numpy.ndarray
             A random numpy array of shape (dim_in, dim_out) whose are zeros.
         """
-        
+
         return np.zeros((dim_in, dim_out))
 
 
@@ -73,7 +75,7 @@ class Uniform(MatrixInitializer):
     sampled from a uniform distribution.
     """
 
-    
+
     def __init__(self, seed=0, low=-0.5, high=0.5):
         """Create a uniform initializer function.
 
@@ -86,7 +88,7 @@ class Uniform(MatrixInitializer):
         high : float
             The highest value of the distribution to sample from
         """
-        
+
         self.rng = np.random.default_rng(seed=seed)
         self.low = low
         self.high = high
@@ -108,7 +110,7 @@ class Uniform(MatrixInitializer):
             A random numpy array of shape (dim_in, dim_out) whose elements are sampled from
             a uniform distribution.
         """
-        
+
         return self.rng.uniform(
             low=self.low,
             high=self.high,
@@ -121,11 +123,11 @@ class Normal(MatrixInitializer):
     The normal initializer creates a matrix of the desired shape whose elements are
     sampled from a uniform distribution.
     """
-    
-    
+
+
     def __init__(self, seed=0, mean=0, variance=0.5):
         """Create a normal initializer function.
-        
+
         Parameters
         ----------
         seed : int
@@ -137,7 +139,7 @@ class Normal(MatrixInitializer):
             The variance of the normal distribution from which the entries
             are to be sampled
         """
-        
+
         self.rng = np.random.default_rng(seed=seed)
         self.mean = mean
         self.variance = variance
@@ -159,7 +161,7 @@ class Normal(MatrixInitializer):
             A random numpy array of shape (dim_in, dim_out) whose elements are sampled from
             a normal distribution.
         """
-        
+
         return self.rng.normal(
             loc=self.mean,
             scale=self.variance,
@@ -174,11 +176,11 @@ class HeNormal(MatrixInitializer):
     number of inputs to a given neuron. In a fully conneted layer, n_k
     is the input dimension.
     """
-    
-    
+
+
     def __init__(self, seed=0, mean=0):
         """Create a He initializer function.
-        
+
         Parameters
         ----------
         seed : int
@@ -187,7 +189,7 @@ class HeNormal(MatrixInitializer):
             The mean of the normal distribution from which the entries are to
             be sampled.
         """
-        
+
         self.rng = np.random.default_rng(seed=seed)
         self.mean = mean
 
@@ -208,7 +210,7 @@ class HeNormal(MatrixInitializer):
             A random numpy array of shape (dim_in, dim_out) whose elements are sampled from
             a He normal distribution.
         """
-        
+
         return self.rng.normal(
             loc=self.mean,
             scale=(np.sqrt(2 / dim_in)),

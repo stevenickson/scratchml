@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class ReLU:
     def __init__(self, leak=0.0):
         self.leak = leak

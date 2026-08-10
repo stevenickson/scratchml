@@ -1,6 +1,4 @@
-import numpy as np
-
-class Sequential():
+class Sequential:
     def __init__(self, *args, **kwargs):
         self.layers = []
         for x in args:
@@ -19,6 +17,6 @@ class Sequential():
     def jacobian(self, x):
         # Returns the Jacobian of the Sequential at x
         d = x
-        for l in layers.reverse():
+        for l in reversed(self.layers):
             d = l.jacobian(l(d)) @ l.jacobian(d)
         return d
