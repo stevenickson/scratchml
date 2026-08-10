@@ -3,6 +3,11 @@ import numpy as np
 import scratchml.models.hand
 import scratchml.models.mnistmodel
 
+import scratchml.layers.initializers as initializers
+import scratchml.layers.perceptron as perceptron
+import scratchml.layers.activation as activation
+import scratchml.layers.sequential as sequential
+
 # Loads the MNIST datasets from the CSV files
 # mnist_test.csv and mnist_train.csv directly into memory
 # as a 2-dimensional array. This is not advisable on large
@@ -73,9 +78,18 @@ def hand_model_demonstration():
     print(m.inference(np.array([[0.75]])))
 
 
+def sequential_demonstration():
+    i = initializers.HeNormal(seed=10839)
+    a = activation.ReLU()
+    p = perceptron.MultilayerPerceptron([3, 4, 2], i, a)
+    x = [[0.3, 0.5, -0.1]]
+    print(p(x))
+
+
 def main():
     # hand_model_demonstration()
-    mnist_model_demonstration()
+    # mnist_model_demonstration()
+    sequential_demonstration()
     
     
 if __name__ == "__main__":
