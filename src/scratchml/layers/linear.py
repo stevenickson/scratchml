@@ -16,6 +16,7 @@ class LinearTransformation:
 
 class Bias:
     def __init__(self, dimension, initializer):
+        self.dimension = dimension
         self.b = initializer(1, dimension)
 
 
