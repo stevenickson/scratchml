@@ -15,8 +15,19 @@ class Sequential:
 
 
     def jacobian(self, x):
-        # Returns the Jacobian of the Sequential at x
-        d = x
-        for l in reversed(self.layers):
-            d = l.jacobian(l(d)) @ l.jacobian(d)
+        # Naive implementation of forward-mode autodifferentiation.
+        # Forward mode differentiation works like this: beginning with
+        # the first layer, the cumulative derivative is
+        #     cumulative_derivative @ layer_derivative(cumulative_output)
+        # per the chain rule.
+        d = 0
+        y = 0
+        for l in self.layers[:1]:
+            d = l.jacobian(x)
+            y = l(x)
+
+        for l in self.layers[1:]:
+            d = d @ l.jacobian(y)
+            y = l(y)
+
         return d
