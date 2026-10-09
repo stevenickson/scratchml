@@ -2,11 +2,8 @@ import numpy as np
 
 import scratchml.models.hand
 import scratchml.models.mnistmodel
+from scratchml.layers import activation, initializers, perceptron
 
-import scratchml.layers.initializers as initializers
-import scratchml.layers.perceptron as perceptron
-import scratchml.layers.activation as activation
-import scratchml.layers.sequential as sequential
 
 # Loads the MNIST datasets from the CSV files
 # mnist_test.csv and mnist_train.csv directly into memory
@@ -30,8 +27,8 @@ def load_datasets():
 # conversion.
 def float_digit_to_probability_vector(y):
     a = np.repeat(0.0, 10)[..., None]
-    
-    if y not in range(0, 10):
+
+    if y not in range(10):
         return a
     i = int(y)
     a[i][0] = 1.0
@@ -45,19 +42,19 @@ def make_pairs():
 def most_confident(probability_vector):
     m = max(probability_vector)
     return probability_vector.tolist().index(m)
-    
-    
+
+
 def mnist_model_demonstration():
     training_data, test_data = load_datasets()
-    
+
     training_pairs = list(map(lambda a: (np.array(a[1:])[..., None] / 255, float_digit_to_probability_vector(a[0])), training_data))
     test_pairs = list(map(lambda a: (np.array(a[1:])[..., None] / 255, float_digit_to_probability_vector(a[0])), test_data))
-    
+
     m1 = scratchml.models.mnistmodel.MnistModel()
     m1.fit(training_pairs, batch_size=20)
     m1.fit(training_pairs, batch_size=15)
     m1.fit(training_pairs, batch_size=16)
-    
+
     print(most_confident(m1.inference(test_pairs[0][0])), most_confident(test_pairs[0][1]))
     print(most_confident(m1.inference(test_pairs[1][0])), most_confident(test_pairs[1][1]))
     print(most_confident(m1.inference(test_pairs[2][0])), most_confident(test_pairs[2][1]))
@@ -79,18 +76,36 @@ def hand_model_demonstration():
 
 
 def sequential_demonstration():
-    i = initializers.HeNormal(seed=10839)
+    # i = initializers.HeNormal(seed=10839)
+    # a = activation.ReLU()
+    # p = perceptron.MultilayerPerceptron([3, 4, 2], i, a)
+    # x = [[0.3, 0.5, -0.1]]
+    # print(p(x))
+
+    it = initializers.Trivial()
     a = activation.ReLU()
-    p = perceptron.MultilayerPerceptron([3, 4, 2], i, a)
-    x = [[0.3, 0.5, -0.1]]
-    print(p(x))
+    p2 = perceptron.MultilayerPerceptron([2, 3, 1], it ,a)
+    p2.seq.layers[0].sequence.layers[0].W = np.array([[-0.8, 0.2, 1.0], [0.6, -0.1, 0.1]]) # W1
+    p2.seq.layers[0].sequence.layers[1].b = np.array([[0.0, 0.0, -1.0]]) # b1
+    p2.seq.layers[1].sequence.layers[0].W = np.array([[0.2], [0.2], [0.2]]) # W2
+    p2.seq.layers[1].sequence.layers[1].b = np.array([[0.3]]) # b2
+
+    # Finite difference check
+    x1 = np.array([[0.5, 0.9]])
+    x2 = np.array([[0.501, 0.89]])
+    y1 = p2(x1)
+    y2 = p2(x2)
+    print(y1)
+    print(y2)
+    print(p2.jacobian(x1))
+    print((x2 - x1) @ p2.jacobian(x1))
 
 
 def main():
     # hand_model_demonstration()
     # mnist_model_demonstration()
     sequential_demonstration()
-    
-    
+
+
 if __name__ == "__main__":
     main()
