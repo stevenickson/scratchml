@@ -1,110 +1,130 @@
+import math
+
 import numpy as np
 
-import scratchml.models.hand
-import scratchml.models.mnistmodel
-from scratchml.layers import activation, initializers, perceptron
+from scratchml.layers import Broadcast, Constant, Product, ReLU, Sum, Tanh, Transpose
 
 
-# Loads the MNIST datasets from the CSV files
-# mnist_test.csv and mnist_train.csv directly into memory
-# as a 2-dimensional array. This is not advisable on large
-# workloads, but the MNIST dataset easily fits into
-# memory on a modern computer and using the naive approach
-# keeps the focus on machine learning rather than infrastructure
-def load_datasets():
-    training = np.loadtxt("mnist_train.csv.gz", delimiter=",")
-    test = np.loadtxt("mnist_test.csv.gz", delimiter=",")
-    return (training, test)
+def graphed_demonstration():
+    x = np.array([[5.0, 10.0, 0.1]])
+    c = np.array(
+            [[ 0.42, -1.13,  0.77],
+             [ 0.05,  0.91, -0.38],
+             [-0.64,  0.28,  1.20]]
+        )
+
+    X = Constant(x)
+    C = Constant(c)
+    Y = Product(X, Product(C, C))
+    Y()
+    Y.backpropogate()
 
 
-# The model we created outputs a column vector of probabilities, representing the
-# degree of confidence the model has in each possible answer. However,
-# our dataset gives its training labels as floats - each image array
-# is associated with the number it represents. To use this with our model,
-# we need to convert each digit (given as a float) into the format that
-# we expect our model to output. Thus, the given the float 5.0, we should output
-# [[0], [0], [0], [0], [0], [1], [0], [0], [0], [0]]. This function makes that
-# conversion.
-def float_digit_to_probability_vector(y):
-    a = np.repeat(0.0, 10)[..., None]
 
-    if y not in range(10):
-        return a
-    i = int(y)
-    a[i][0] = 1.0
-    return a
+    print("=== X: ===")
+    print(X.evaluation)
+    print("=== C: ===")
+    print(C.evaluation)
+    print("=== Y: ===")
+    print(Y.evaluation)
 
+    print()
 
-def make_pairs():
-    None
+    print("=== dYdX: ===")
+    print(X.backpropogation)
+    print("=== dYdC: ===")
+    print(C.backpropogation)
 
+    print()
 
-def most_confident(probability_vector):
-    m = max(probability_vector)
-    return probability_vector.tolist().index(m)
-
-
-def mnist_model_demonstration():
-    training_data, test_data = load_datasets()
-
-    training_pairs = list(map(lambda a: (np.array(a[1:])[..., None] / 255, float_digit_to_probability_vector(a[0])), training_data))
-    test_pairs = list(map(lambda a: (np.array(a[1:])[..., None] / 255, float_digit_to_probability_vector(a[0])), test_data))
-
-    m1 = scratchml.models.mnistmodel.MnistModel()
-    m1.fit(training_pairs, batch_size=20)
-    m1.fit(training_pairs, batch_size=15)
-    m1.fit(training_pairs, batch_size=16)
-
-    print(most_confident(m1.inference(test_pairs[0][0])), most_confident(test_pairs[0][1]))
-    print(most_confident(m1.inference(test_pairs[1][0])), most_confident(test_pairs[1][1]))
-    print(most_confident(m1.inference(test_pairs[2][0])), most_confident(test_pairs[2][1]))
-    print(most_confident(m1.inference(test_pairs[3][0])), most_confident(test_pairs[3][1]))
-    print(most_confident(m1.inference(test_pairs[4][0])), most_confident(test_pairs[4][1]))
-    print(most_confident(m1.inference(test_pairs[5][0])), most_confident(test_pairs[5][1]))
-    print(most_confident(m1.inference(test_pairs[6][0])), most_confident(test_pairs[6][1]))
+    print("=== Finite difference check ===")
+    epsilon = np.array([0.001, 0.0, 0.0])
+    X.evaluation = x + epsilon
+    Y()
+    high = Y.evaluation
+    X.evaluation = x - epsilon
+    Y()
+    low = Y.evaluation
+    print(high - low)
 
 
-def hand_model_demonstration():
-    # Train the hand model to divide its input in half. Input is a 1x1 matrix [[x]], output is
-    # a vector which should have the form <x, 0.5x>
-    m = scratchml.models.hand.HandModel()
-    print(m.inference(np.array([[0.3]])))
-    dataset = [(np.array([[a]]), np.array([[a], [0.5 * a]])) for a in np.arange(0.0, 1.0, 0.1)]
-    for i in range(1, 50000):
-        m.fiterate(dataset, 0.01)
-    print(m.inference(np.array([[0.75]])))
+def perceptron_demonstration():
+    X_train = [
+                np.random.uniform(size=(1, 3), low=-1.0, high=1.0) for _ in range(1, 1000)
+              ]
+    Y_train = [x**2 for x in X_train]
 
 
-def sequential_demonstration():
-    # i = initializers.HeNormal(seed=10839)
-    # a = activation.ReLU()
-    # p = perceptron.MultilayerPerceptron([3, 4, 2], i, a)
-    # x = [[0.3, 0.5, -0.1]]
-    # print(p(x))
+    X = Constant(X_train[0])
+    Y = Constant(Y_train[0])
 
-    it = initializers.Trivial()
-    a = activation.ReLU()
-    p2 = perceptron.MultilayerPerceptron([2, 3, 1], it ,a)
-    p2.seq.layers[0].sequence.layers[0].W = np.array([[-0.8, 0.2, 1.0], [0.6, -0.1, 0.1]]) # W1
-    p2.seq.layers[0].sequence.layers[1].b = np.array([[0.0, 0.0, -1.0]]) # b1
-    p2.seq.layers[1].sequence.layers[0].W = np.array([[0.2], [0.2], [0.2]]) # W2
-    p2.seq.layers[1].sequence.layers[1].b = np.array([[0.3]]) # b2
+    W_1 = Constant(np.random.rand(3, 32))
+    b_1 = Constant(np.random.rand(1, 32))
+    l1 = Tanh(Sum(Product(X, W_1), b_1))
 
-    # Finite difference check
-    x1 = np.array([[0.5, 0.9]])
-    x2 = np.array([[0.501, 0.89]])
-    y1 = p2(x1)
-    y2 = p2(x2)
-    print(y1)
-    print(y2)
-    print(p2.jacobian(x1))
-    print((x2 - x1) @ p2.jacobian(x1))
+    W_2 = Constant(np.random.rand(32, 3))
+    b_2 = Constant(np.random.rand(1, 3))
+    l2 = Tanh(Sum(Product(l1, W_2), b_2))
+
+    error = Sum(
+                Product(
+                    Y,
+                    Constant(-1.0 * np.identity(3)),
+                ),
+                l2
+            )
+
+    # Mean squared error
+    loss = Product(
+              Constant(np.array([[1 / 3]])),
+              Product(
+                  error,
+                  Transpose(error)
+              )
+           )
+
+    gW_1 = np.zeros_like(W_1.evaluation)
+    gb_1 = np.zeros_like(b_1.evaluation)
+    gW_2 = np.zeros_like(W_2.evaluation)
+    gb_2 = np.zeros_like(b_2.evaluation)
+    beta = 0.9
+    lr = 0.15
+    for _ in range(1, 4500):
+        gW_1 *= beta
+        gb_1 *= beta
+        gW_2 *= beta
+        gb_2 *= beta
+
+        meanloss = 0
+        for x, y in zip(X_train, Y_train):
+            X.evaluation = x
+            Y.evaluation = y
+            loss()
+            meanloss += loss.evaluation / len(X_train)
+            loss.backpropogate()
+            gW_1 += W_1.backpropogation * (1 / len(X_train))
+            gb_1 += b_1.backpropogation * (1 / len(X_train))
+            gW_2 += W_2.backpropogation * (1 / len(X_train))
+            gb_2 += b_2.backpropogation * (1 / len(X_train))
+        print("Loss:", meanloss)
+
+        W_1.evaluation -= gW_1 * lr
+        b_1.evaluation -= gb_1 * lr
+        W_2.evaluation -= gW_2 * lr
+        b_2.evaluation -= gb_2 * lr
+
+    X.evaluation = np.array([[0.5, 0.2, 0.3]])
+    print("X:", X.evaluation)
+    loss()
+    print("Y:", l2.evaluation)
 
 
 def main():
     # hand_model_demonstration()
     # mnist_model_demonstration()
-    sequential_demonstration()
+    # sequential_demonstration()
+    # graphed_demonstration()
+    perceptron_demonstration()
 
 
 if __name__ == "__main__":
