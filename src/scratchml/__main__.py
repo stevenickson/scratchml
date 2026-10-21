@@ -1,8 +1,7 @@
-import math
-
 import numpy as np
 
-from scratchml.layers import Broadcast, Constant, Product, ReLU, Sum, Tanh, Transpose
+from scratchml.layers import MSE, Constant, Product, Sum, Tanh
+from scratchml.optimizers import SGD
 
 
 def graphed_demonstration():
@@ -66,6 +65,7 @@ def perceptron_demonstration():
     b_2 = Constant(np.random.rand(1, 3))
     l2 = Tanh(Sum(Product(l1, W_2), b_2))
 
+    """
     error = Sum(
                 Product(
                     Y,
@@ -82,7 +82,28 @@ def perceptron_demonstration():
                   Transpose(error)
               )
            )
+    """
+    loss = MSE(l2, Y)
 
+    avg = 0
+    for x, y in zip(X_train, Y_train):
+        X.evaluation = x
+        Y.evaluation = y
+        loss()
+        avg += loss.evaluation.item()
+    avg /= len(X_train)
+    print(avg)
+
+    opt = SGD(loss, parameters=[W_1, W_2, b_1, b_2], rate=0.15 / len(X_train), beta=0.9)
+    for _ in range(1, 4000):
+        for x, y in zip(X_train, Y_train):
+            X.evaluation = x
+            Y.evaluation = y
+            loss()
+            loss.backpropogate()
+            opt.step()
+
+    """
     gW_1 = np.zeros_like(W_1.evaluation)
     gb_1 = np.zeros_like(b_1.evaluation)
     gW_2 = np.zeros_like(W_2.evaluation)
@@ -112,11 +133,29 @@ def perceptron_demonstration():
         b_1.evaluation -= gb_1 * lr
         W_2.evaluation -= gW_2 * lr
         b_2.evaluation -= gb_2 * lr
+    """
 
-    X.evaluation = np.array([[0.5, 0.2, 0.3]])
-    print("X:", X.evaluation)
-    loss()
-    print("Y:", l2.evaluation)
+    avg = 0
+    for x, y in zip(X_train, Y_train):
+        X.evaluation = x
+        Y.evaluation = y
+        loss()
+        avg += loss.evaluation.item()
+    avg /= len(X_train)
+    print(avg)
+
+    X_test = [
+                np.random.uniform(size=(1, 3), low=-1.0, high=1.0) for _ in range(1, 1000)
+              ]
+    Y_test = [x**2 for x in X_test]
+    avg = 0
+    for x, y in zip(X_test, Y_test):
+        X.evaluation = x
+        Y.evaluation = y
+        loss()
+        avg += loss.evaluation.item()
+    avg /= len(X_test)
+    print(avg)
 
 
 def main():
