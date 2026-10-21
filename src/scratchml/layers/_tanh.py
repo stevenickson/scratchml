@@ -7,7 +7,7 @@ class Tanh(Node):
     def __init__(self, x):
         self.x = x
         self.evaluation = None
-        self.backpropogation = None
+        self.backpropagation = None
 
 
     def get_parents(self):
@@ -19,4 +19,4 @@ class Tanh(Node):
 
 
     def back(self):
-        self.x.backpropogation += self.backpropogation * (1 - self.evaluation**2)
+        self.x.backpropagation += self.backpropagation * (1 - self.evaluation**2)

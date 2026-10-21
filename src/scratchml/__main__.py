@@ -16,7 +16,7 @@ def graphed_demonstration():
     C = Constant(c)
     Y = Product(X, Product(C, C))
     Y()
-    Y.backpropogate()
+    Y.backpropagate()
 
 
 
@@ -30,9 +30,9 @@ def graphed_demonstration():
     print()
 
     print("=== dYdX: ===")
-    print(X.backpropogation)
+    print(X.backpropagation)
     print("=== dYdC: ===")
-    print(C.backpropogation)
+    print(C.backpropagation)
 
     print()
 
@@ -100,7 +100,7 @@ def perceptron_demonstration():
             X.evaluation = x
             Y.evaluation = y
             loss()
-            loss.backpropogate()
+            loss.backpropagate()
             opt.step()
 
     """
@@ -122,11 +122,11 @@ def perceptron_demonstration():
             Y.evaluation = y
             loss()
             meanloss += loss.evaluation / len(X_train)
-            loss.backpropogate()
-            gW_1 += W_1.backpropogation * (1 / len(X_train))
-            gb_1 += b_1.backpropogation * (1 / len(X_train))
-            gW_2 += W_2.backpropogation * (1 / len(X_train))
-            gb_2 += b_2.backpropogation * (1 / len(X_train))
+            loss.backpropagate()
+            gW_1 += W_1.backpropagation * (1 / len(X_train))
+            gb_1 += b_1.backpropagation * (1 / len(X_train))
+            gW_2 += W_2.backpropagation * (1 / len(X_train))
+            gb_2 += b_2.backpropagation * (1 / len(X_train))
         print("Loss:", meanloss)
 
         W_1.evaluation -= gW_1 * lr

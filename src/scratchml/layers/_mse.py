@@ -10,7 +10,7 @@ class MSE(Node):
         self.evaluation = None
         self.x_derivative = None
         self.target_derivative = None
-        self.backpropogation = np.array([0.0])
+        self.backpropagation = np.array([0.0])
 
 
     def get_parents(self):
@@ -26,5 +26,5 @@ class MSE(Node):
 
 
     def back(self):
-        self.x.backpropogation += self.backpropogation * self.x_derivative
-        self.target.backpropogation += self.backpropogation * self.target_derivative
+        self.x.backpropagation += self.backpropagation * self.x_derivative
+        self.target.backpropagation += self.backpropagation * self.target_derivative

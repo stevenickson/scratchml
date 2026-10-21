@@ -13,6 +13,6 @@ class SGD:
     def step(self):
         for parameter, gradient in zip(self.parameters, self.gradients):
             gradient *= self.beta
-            gradient += parameter.backpropogation * self.rate
+            gradient += parameter.backpropagation * self.rate
             parameter.evaluation -= gradient
 

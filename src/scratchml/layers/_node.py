@@ -58,11 +58,11 @@ class Node:
             n.forwards()
 
 
-    def backpropogate(self):
+    def backpropagate(self):
         ordering = self.toposort()
         for n in ordering:
-            n.backpropogation = np.zeros_like(n.evaluation)
-        self.backpropogation = np.ones_like(self.evaluation)
+            n.backpropagation = np.zeros_like(n.evaluation)
+        self.backpropagation = np.ones_like(self.evaluation)
 
         for n in ordering:
             n.back()

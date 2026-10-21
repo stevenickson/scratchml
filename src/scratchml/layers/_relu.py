@@ -9,7 +9,7 @@ class ReLU(Node):
         self.alpha = alpha
         self.evaluation = None
         self.derivative = None
-        self.backpropogation = np.array([0.0])
+        self.backpropagation = np.array([0.0])
 
 
     def get_parents(self):
@@ -24,4 +24,4 @@ class ReLU(Node):
 
 
     def back(self):
-        self.x.backpropogation += self.backpropogation * self.derivative
+        self.x.backpropagation += self.backpropagation * self.derivative

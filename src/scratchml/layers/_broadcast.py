@@ -8,7 +8,7 @@ class Broadcast(Node):
         self.x = x
         self.like = like
         self.evaluation = None
-        self.backpropogation = None
+        self.backpropagation = None
 
 
     def get_parents(self):
@@ -24,11 +24,11 @@ class Broadcast(Node):
                                     enumerate(
                                         zip(
                                             self.x.evaluation.shape,
-                                            self.backpropogation.shape
+                                            self.backpropagation.shape
                                         )
                                     )
                                 if p == 1 and o > 1)
-        self.x.backpropogation += self.backpropogation.sum(
+        self.x.backpropagation += self.backpropagation.sum(
                 axis=mismatched_axes,
                 keepdims = True
         )

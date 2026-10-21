@@ -7,7 +7,7 @@ class Transpose(Node):
     def __init__(self, x):
         self.x = x
         self.evaluation = None
-        self.backpropogation = np.array([0.0])
+        self.backpropagation = np.array([0.0])
 
 
     def get_parents(self):
@@ -30,4 +30,4 @@ class Transpose(Node):
         # expression by noting that this matrix has the effect of transposing
         # its input. Therefore, the backflow is just the tranpose of the
         # incoming backflow.
-        self.x.backpropogation += self.backpropogation.T
+        self.x.backpropagation += self.backpropagation.T

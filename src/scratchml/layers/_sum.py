@@ -8,7 +8,7 @@ class Sum(Node):
         self.x1 = x1
         self.x2 = x2
         self.evaluation = None
-        self.backpropogation = np.array([0.0])
+        self.backpropagation = np.array([0.0])
 
 
     def get_parents(self):
@@ -20,5 +20,5 @@ class Sum(Node):
 
 
     def back(self):
-        self.x1.backpropogation += self.backpropogation
-        self.x2.backpropogation += self.backpropogation
+        self.x1.backpropagation += self.backpropagation
+        self.x2.backpropagation += self.backpropagation
