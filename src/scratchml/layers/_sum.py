@@ -1,6 +1,7 @@
 import numpy as np
 
 from ._node import Node
+from ._shape import reduce_to
 
 
 class Sum(Node):
@@ -20,5 +21,11 @@ class Sum(Node):
 
 
     def back(self):
-        self.x1.backpropagation += self.backpropagation
-        self.x2.backpropagation += self.backpropagation
+        self.x1.backpropagation += reduce_to(
+                self.backpropagation,
+                np.shape(self.x1.evaluation)
+        )
+        self.x2.backpropagation += reduce_to(
+                self.backpropagation,
+                np.shape(self.x2.evaluation)
+        )
