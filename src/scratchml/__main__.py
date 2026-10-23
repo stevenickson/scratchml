@@ -1,6 +1,7 @@
 import numpy as np
 
-from scratchml.layers import MSE, Constant, Product, Sum, Tanh, ReLU
+from scratchml.initializers import HeNormal
+from scratchml.layers import MSE, Constant, Product, ReLU, Sum, Tanh
 from scratchml.optimizers import SGD
 
 
@@ -159,19 +160,23 @@ def perceptron_demonstration():
 
 
 def perceptron_demonstration_batched():
-    X_train = np.random.uniform(size=(1000, 3), low=-1.0, high=1.0)
-    X_test = np.random.uniform(size=(1000, 3), low=-1.0, high=1.0)
+    generator = np.random.default_rng(seed=312452)
+
+    X_train = generator.uniform(size=(1000, 3), low=-1.0, high=1.0)
+    X_test = generator.uniform(size=(1000, 3), low=-1.0, high=1.0)
     Y_train = X_train**2
     Y_test = X_test**2
+
+    initializer = HeNormal(generator)
 
     X = Constant(X_train)
     Y = Constant(Y_train)
 
-    W_1 = Constant(np.random.rand(3, 32))
+    W_1 = Constant(initializer((3, 32)))
     b_1 = Constant(np.random.rand(1, 32))
     l1 = ReLU(Sum(Product(X, W_1), b_1), alpha=0.1)
 
-    W_2 = Constant(np.random.rand(32, 3))
+    W_2 = Constant(initializer((32, 3)))
     b_2 = Constant(np.random.rand(1, 3))
     l2 = ReLU(Sum(Product(l1, W_2), b_2), alpha=0.1)
 
@@ -181,7 +186,7 @@ def perceptron_demonstration_batched():
     print(loss.evaluation)
 
     opt = SGD(loss, parameters=[W_1, W_2, b_1, b_2], rate=0.1, beta=0.9)
-    for _ in range(45000):
+    for _ in range(10000):
         loss()
         loss.backpropagate()
         opt.step()
