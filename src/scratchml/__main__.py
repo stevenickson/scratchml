@@ -1,5 +1,6 @@
 import numpy as np
 
+import scratchml.dataloader as dl
 from scratchml.initializers import HeNormal
 from scratchml.layers import MSE, Constant, Product, ReLU, Sum, Tanh
 from scratchml.optimizers import SGD
@@ -199,13 +200,73 @@ def perceptron_demonstration_batched():
     print(loss.evaluation)
 
 
+def mnist_demonstration():
+    generator = np.random.default_rng(seed=312452)
+
+    X_train, Y_train, X_test, Y_test = dl.load_fashion_mnist(flatten=True, normalize=True, vectorize_output=True)
+
+    initializer = HeNormal(generator)
+
+    X = Constant(X_train)
+    Y = Constant(Y_train)
+
+    W_1 = Constant(initializer((784, 256)))
+    b_1 = Constant(np.random.rand(1, 256))
+    l1 = ReLU(Sum(Product(X, W_1), b_1), alpha=0.1)
+
+    W_2 = Constant(initializer((256, 128)))
+    b_2 = Constant(np.random.rand(1, 128))
+    l2 = ReLU(Sum(Product(l1, W_2), b_2), alpha=0.1)
+
+    W_3 = Constant(initializer((128, 10)))
+    b_3 = Constant(np.random.rand(1, 10))
+    l3 = ReLU(Sum(Product(l2, W_3), b_3), alpha=0.1)
+
+    loss = MSE(l3, Y)
+
+    X.evaluation = X_test
+    Y.evaluation = Y_test
+    loss()
+    print("Initial test loss:", loss.evaluation)
+    print("Initial test accuracy:",
+          np.mean(np.argmax(l3.evaluation, axis=1) == np.argmax(Y_test, axis=1)))
+
+    X.evaluation = X_train
+    Y.evaluation = Y_train
+    loss()
+    print("Initial training loss:", loss.evaluation)
+    print("Initial training accuracy:",
+          np.mean(np.argmax(l3.evaluation, axis=1) == np.argmax(Y_train, axis=1)))
+
+
+    opt = SGD(loss, parameters=[W_1, W_2, W_3, b_1, b_2, b_3], rate=0.05, beta=0.9)
+    for _ in range(500):
+        loss()
+        loss.backpropagate()
+        opt.step()
+
+    X.evaluation = X_test
+    Y.evaluation = Y_test
+    loss()
+    print("Final test loss:", loss.evaluation)
+    print("Final test accuracy:",
+          np.mean(np.argmax(l3.evaluation, axis=1) == np.argmax(Y_test, axis=1)))
+
+    X.evaluation = X_train
+    Y.evaluation = Y_train
+    loss()
+    print("Final training loss:", loss.evaluation)
+    print("Final training accuracy:",
+          np.mean(np.argmax(l3.evaluation, axis=1) == np.argmax(Y_train, axis=1)))
+
 def main():
     # hand_model_demonstration()
     # mnist_model_demonstration()
     # sequential_demonstration()
     # graphed_demonstration()
     # perceptron_demonstration()
-    perceptron_demonstration_batched()
+    # perceptron_demonstration_batched()
+    mnist_demonstration()
 
 
 if __name__ == "__main__":
